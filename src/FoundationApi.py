@@ -28,73 +28,71 @@ class FoundationApi:
 	authcreator = ''
 	baseurl = 'https://foundation.iplantc.org'
 	
-	def AuthInit(self, suburl, userid, password):
+	def auth_init(self, suburl, userid, password):
 		req = urllib2.Request(self.baseurl + suburl)
 		base64string = base64.encodestring('%s:%s' % (userid, password)).replace('\n', '')
 		req.add_header("Authorization", "Basic %s" % base64string)
 		return req
 	
-	def AuthInitDel(self, suburl, userid, token):
+	def auth_init_del(self, suburl, userid, token):
 		req = RequestWithMethod(self.baseurl + suburl, 'DELETE')
 		base64string = base64.encodestring('%s:%s' % (userid, token)).replace('\n', '')
 		req.add_header("Authorization", "Basic %s" % base64string)
 		return req
 		
-	def Validate(self, userid, password):
-		req = self.AuthInit(suburl, userid, password)
-		response = urllib2.urlopen(req)
-		returnData = json.load(response)
-		return returnData
-		
-	def Authenticate(self, userid, password):
+	def validate(self, userid, password):
 		suburl = '/auth-v1/'
-		req = self.AuthInit(suburl, userid, password)
+		req = self.auth_init(suburl, userid, password)
+		response = urllib2.urlopen(req)
+		return_data = json.load(response)
+		return return_data
+		
+	def authenticate(self, userid, password):
+		suburl = '/auth-v1/'
+		req = self.auth_init(suburl, userid, password)
 		postdata = ''
 		req.add_data(postdata)
 		response = urllib2.urlopen(req, postdata)
-		returnData = json.load(response)
-		self.token = returnData['result']['token']
-		self.userid = returnData['result']['username']
+		return_data = json.load(response)
+		self.token = return_data['result']['token']
+		self.userid = return_data['result']['username']
 		self.password = password
-		self.authrenewed = returnData['result']['renewed']
-		self.authcreated = returnData['result']['created']
-		self.authexpires = returnData['result']['expires']
-		self.authremaining = returnData['result']['remaining_uses']
-		self.authcreator = returnData['result']['creator']
-		return returnData
+		self.authrenewed = return_data['result']['renewed']
+		self.authcreated = return_data['result']['created']
+		self.authexpires = return_data['result']['expires']
+		self.authremaining = return_data['result']['remaining_uses']
+		self.authcreator = return_data['result']['creator']
+		return return_data
 		
-	def AuthRenew(self, token):
+	def auth_renew(self, token):
 		suburl = '/auth-v1/renew'
-		req = self.AuthInit(suburl, self.userid, self.password)
+		req = self.auth_init(suburl, self.userid, self.password)
 		values = {'token' : token}
 		postdata = urllib.urlencode(values)
 		req.add_data(postdata)
 		response = urllib2.urlopen(req, postdata)
-		returnData = json.load(response)
-		return returnData
+		return_data = json.load(response)
+		return return_data
 		
-	def AuthList(self):
+	def auth_list(self):
 		suburl = '/auth-v1/list'
-		req = self.AuthInit(suburl, self.userid, self.token)
+		req = self.auth_init(suburl, self.userid, self.token)
 		response = urllib2.urlopen(req)
-		returnData = json.load(response)
-		return returnData
+		return_data = json.load(response)
+		return return_data
 	
-	def AuthDelete(self, token):
+	def auth_delete(self, token):
 		suburl = '/auth-v1/'
-		req = self.AuthInitDel(suburl, self.userid, token)
+		req = self.auth_init_del(suburl, self.userid, token)
 		postdata = ''
 		req.add_data(postdata)
 		response = urllib2.urlopen(req, postdata)
-		returnData = json.load(response)
-		return returnData
+		return_data = json.load(response)
+		return return_data
 		
-	def DeleteAllTokens(self):
-		listData = self.AuthList()
-		tokens = listData['result']
-		for tokenItem in tokens:
-			if tokenItem['token'] != self.token:
-				self.AuthDelete(tokenItem['token'])
-		
-		
-		
+	def delete_all_tokens(self):
+		list_data = self.AuthList()
+		tokens = list_data['result']
+		for token_item in tokens:
+			if token_item['token'] != self.token:
+				self.AuthDelete(token_item['token'])
