@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import FoundationApi
+from foundation import FoundationApi
 import OptionParser
 import fileinput
 import os
