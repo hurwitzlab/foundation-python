@@ -4,7 +4,10 @@ import time
 
 api = FoundationApi.FoundationApi()
 # Put in your iPlant userid and password
-api.authenticate('dboss', 'XXXXXXXX')
+with open('password') as f:
+	credentials = [x.strip().split(':') for x in f.readlines()]
+for username,password in credentials:	
+	api.authenticate(username, password)
 # Change the file path to a file that you have access to
 inputs = {'inputFile': '/dboss/current-prot-universe.fa'}
 parameters = {'numberOfLines': '5'}
