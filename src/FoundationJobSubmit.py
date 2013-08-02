@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-import FoundationApi
-import FoundationJob
+from foundation import FoundationApi, FoundationJob
 import OptionParser
 import fileinput
 
