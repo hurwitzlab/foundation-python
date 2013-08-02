@@ -64,6 +64,13 @@ class FoundationApi:
 		response = requests.get(self.BASEURL + self.APPS_LIST, auth=(self.userid, self.token))
 		return response.json()
 		
+	def list_app_ids(self):
+		applist = self.list_apps()
+		appids = []
+		for app in applist['result']:
+			appids.append(app['id'])
+		return appids
+		
 	def find_app_by_name(self, name):
 		response = requests.get(self.BASEURL + self.APPS_LIST_NAME + name, auth=(self.userid, self.token))
 		return response.json()
