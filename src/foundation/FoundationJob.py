@@ -30,9 +30,10 @@ class FoundationJob:
 	software_name = ''
 	# job status
 	job_status = ''
+	job_output = ''
 	
-	def __init__(self, api, software_name, job_name, processor_count=1, max_memory=1, requested_time='1:00:00',
-				callback_url='', archive='false', archive_path='', inputs=[], outputs=[], parameters=[]):
+	def __init__(self, api, software_name, job_name, archive_path, processor_count=1, max_memory=1, requested_time='1:00:00',
+				callback_url='', archive='false', inputs=[], outputs=[], parameters=[]):
 		self.api = api
 		self.software_name = software_name
 		self.job_name = job_name
@@ -58,3 +59,8 @@ class FoundationJob:
 	def update_status(self):
 		self.job_status = self.api.job_status(self.job_status['result']['id'])
 		return self.job_status;
+
+	def output_files(self):
+		self.job_output = self.api.job_output(self.job_status['result']['id'])
+		return self.job_output
+

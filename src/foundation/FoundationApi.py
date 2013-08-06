@@ -21,6 +21,7 @@ class FoundationApi:
 	APPS_LIST_NAME = '/apps-v1/apps/name/'
 	IO_LIST = '/io-v1/io/list'
 	JOB = '/apps-v1/job/'
+	#OUTPUT_FILES = '/output/'
 			
 	def validate(self, userid, password):
 		response = requests.get(self.BASEURL + self.AUTH, auth=(userid, password))
@@ -120,3 +121,7 @@ class FoundationApi:
 		url = self.BASEURL + self.IO_LIST + path
 		response = requests.get(url, auth=(self.userid, self.token))
 		return response.json()
+
+	#def job_output(self, id):
+		#results = requests.get(self.BASEURL + self.JOB + str(id) + self.OUTPUT_FILES, auth=(self.userid, self.token))
+                #return results.json()
