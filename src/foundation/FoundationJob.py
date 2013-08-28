@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import requests, FoundationApi
 
-class FoundationJob:
+class FoundationJob(object):
 	"""Foundation Job class"""
 	api = FoundationApi.FoundationApi
 	# softwareName
@@ -58,3 +58,4 @@ class FoundationJob:
 	def update_status(self):
 		self.job_status = self.api.job_status(self.job_status['result']['id'])
 		return self.job_status;
+	

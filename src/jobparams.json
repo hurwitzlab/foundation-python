@@ -1,0 +1,20 @@
+{
+	"software_name": "head-stampede-5.97u2",
+	"job_name": "head test"
+	"processor_count": "1",
+	"max_memory": "1",
+	"requested_time": "1:00:00",
+	"callback_url" : "",
+	"archive" : "true", 
+	"archive_path" : "",
+	"inputs": {
+		"inputfile": "input.fa"
+	}
+	"parameters": {
+		"numberoflines": "10",
+		"numberofbytes": ""
+	}
+	"outputs": {
+		"outputtextfile": ""
+	}
+}

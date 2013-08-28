@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 from foundation import FoundationApi, FoundationJob
 import time
+import Queue
+import threading
 
+queue = Queue.Queue()
 api = FoundationApi.FoundationApi()
 # Put in your iPlant userid and password
 with open('password') as f:

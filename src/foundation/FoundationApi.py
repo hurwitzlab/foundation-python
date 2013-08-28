@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import simplejson as json
 import requests
+import datetime
 
 class FoundationApi:
 	"""Foundation Api class"""
@@ -16,8 +17,10 @@ class FoundationApi:
 	AUTH = '/auth-v1/'
 	AUTH_RENEW = '/auth-v1/renew'
 	AUTH_LIST = '/auth-v1/list'
+	APPS = '/apps-v1/apps/'
 	APPS_LIST = '/apps-v1/apps/list'
 	JOBS_LIST = '/apps-v1/jobs/list'
+	JOBS_LIST_STATUS = '/apps-v1/jobs/list/status/'
 	APPS_LIST_NAME = '/apps-v1/apps/name/'
 	IO_LIST = '/io-v1/io/list'
 	JOB = '/apps-v1/job/'
@@ -32,14 +35,20 @@ class FoundationApi:
 		self.token = return_data['result']['token']
 		self.userid = return_data['result']['username']
 		self.password = password
-		self.authrenewed = return_data['result']['renewed']
-		self.authcreated = return_data['result']['created']
-		self.authexpires = return_data['result']['expires']
+		#self.authrenewed = return_data['result']['renewed']
+		self.authrenewed = datetime.datetime.fromtimestamp(int(return_data['result']['renewed']))
+		self.authcreated = datetime.datetime.fromtimestamp(int(return_data['result']['created']))
+		self.authexpires = datetime.datetime.fromtimestamp(int(return_data['result']['expires']))
 		self.authremaining = return_data['result']['remaining_uses']
 		self.authcreator = return_data['result']['creator']
 		return return_data
+	
+	def reauth(self):
+		return_data = self.authenticate(self.userid, self.password)
 		
-	def auth_renew(self, token):
+	def auth_renew(self, token=''):
+		if token == '':
+			token = self.token
 		values = {'token' : token}
 		response = requests.post(self.BASEURL + self.AUTH_RENEW, auth=(self.userid, self.password),
 					data=values)
@@ -68,26 +77,34 @@ class FoundationApi:
 		applist = self.list_apps()
 		appids = []
 		for app in applist['result']:
-			appids.append(app['id'])
+			if 'id' in app:
+				appids.append(app['id'])
 		return appids
 		
 	def find_app_by_name(self, name):
 		response = requests.get(self.BASEURL + self.APPS_LIST_NAME + name, auth=(self.userid, self.token))
 		return response.json()
 		
+	def print_app_parameters(self, name):
+		applist = self.find_app_by_name(name)
+		for app in applist['result']:
+			if 'id' in app:
+				print('App ID: ' + app['id'])
+				print('\tInputs:')
+				for input in app['inputs']:
+					print('\t\tID:' + input['id'])
+				print('\tOutputs:')
+				for output in app['outputs']:
+					print('\t\tID:' + output['id'])
+				print('\tParameters:')
+				for param in app['parameters']:
+					print('\t\tID:' + param['id'])
+					
 	def app_parameters(self, name):
 		applist = self.find_app_by_name(name)
 		for app in applist['result']:
-			print('App ID: ' + app['id'])
-			print('\tInputs:')
-			for input in app['inputs']:
-				print('\t\tID:' + input['id'])
-			print('\tOutputs:')
-			for output in app['outputs']:
-				print('\t\tID:' + output['id'])
-			print('\tParameters:')
-			for param in app['parameters']:
-				print('\t\tID:' + param['id'])
+			if 'id' in app:
+				print json.dumps(app, indent=4, separators=(',', ': '))
 					
 	def past_jobs(self):
 		response = requests.get(self.BASEURL + self.JOBS_LIST, auth=(self.userid, self.token))
@@ -115,8 +132,24 @@ class FoundationApi:
 	def kill_job(self, id):
 		results = requests.delete(self.BASEURL + self.JOB + id, auth=(self.userid, self.password))
 		return results.json()
+						
+	def kill_queued(self):
+		results = []
+		jobs_to_kill = self.list_jobs('QUEUED')
+		for job in jobs_to_kill['result']:
+			result = self.kill_job(str(job['id']))
+			results.append(result)
+		return results
 		
 	def list_files(self, path):
 		url = self.BASEURL + self.IO_LIST + path
-		response = requests.get(url, auth=(self.userid, self.token))
-		return response.json()
+		results = requests.get(url, auth=(self.userid, self.token))
+		return results.json()
+	
+	def list_jobs(self, status):
+		results = requests.get(self.BASEURL + self.JOBS_LIST_STATUS + status, auth=(self.userid, self.token))
+		return results.json()
+	
+	def app_permissions(self, id):
+		results = requests.get(self.BASEURL + self.APPS + id + '/share', auth=(self.userid, self.token))
+		return results.json()
