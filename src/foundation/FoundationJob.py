@@ -58,6 +58,7 @@ class FoundationJob(object):
 
     def submit(self):
         self.job_status = self.api.run_job(self)
+        return self.job_status
 
     def update_status(self):
         self.job_status = self.api.job_status(self.job_status['result']['id'])
