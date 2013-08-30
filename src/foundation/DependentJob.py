@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import FoundationJob
+import Queue
 
 FAILED_STATUSES = ['KILLED', 'FAILED', 'STOPPED', 'ARCHIVING_FAILED',
                    'DEPENDENCY_FAILED']
@@ -53,3 +54,21 @@ class DependentJob(FoundationJob.FoundationJob):
         elif self.job_dependencies_failed():
             raise RuntimeError("Job dependency failed")
         return result
+
+
+class DependencyQueue():
+    _queue = Queue.Queue()
+
+    def __init__(self):
+        self._queue = Queue.Queue()
+
+    def put_job(self, job):
+        self._queue.put(job)
+
+    def get_job(self):
+        return self._queue.get(True, 2)
+
+    def task_done(self):
+        self._queue.task_done()
+
+

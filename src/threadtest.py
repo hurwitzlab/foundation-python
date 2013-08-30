@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-from foundation import FoundationApi, FoundationJob, DependentJob, queuedpool
+from foundation import FoundationApi, FoundationJob, DependentJob
 import time
 import Queue
+
 
 def main():
     api = FoundationApi.FoundationApi()
@@ -34,7 +35,7 @@ def main():
         time.sleep(2)
         print job.update_status()
         submitted_jobs.append(job)
-    dependent_job_queue = Queue.Queue()
+    dependent_job_queue = DependentJob.DependencyQueue()
     for job in jobs:
         dependent_job = DependentJob.DependentJob(api, 'head-stampede-5.97u2',
                                                   'Head dep', archive='true',
@@ -45,20 +46,20 @@ def main():
         #                                          'Head dep', archive='false',
         #                                          inputs=inputs,
         #                                          job_dependency=job)
-        dependent_job_queue.put(dependent_job)
+        dependent_job_queue.put_job(dependent_job)
     #work_requests = queuedpool.makeRequests(DependentJob.DependentJob.submit,
     #                                        dependent_jobs,
     #                                        print_result, handle_exception)
     failed_jobs = []
     while True:
         try:
-            job = dependent_job_queue.get(True, 2)
+            job = dependent_job_queue.get_job()
             dependent_job_queue.task_done()
             result = job.submit()
             if result:
                 print 'Dependent job submitted'
             else:
-                dependent_job_queue.put(job)
+                dependent_job_queue.put_job(job)
             time.sleep(2)
         except Queue.Empty:
             print 'Queue is empty'
