@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import FoundationJob
 import Queue
+import time
 
 FAILED_STATUSES = ['KILLED', 'FAILED', 'STOPPED', 'ARCHIVING_FAILED',
                    'DEPENDENCY_FAILED']
@@ -46,8 +47,8 @@ class DependentJob(FoundationJob.FoundationJob):
 
     def submit(self):
         self.job_dependency.update_status()
-        print(str(self.job_dependency.job_status['result']['id']) +
-              ' ' + str(self.is_job_ready_to_run()))
+        #print(str(self.job_dependency.job_status['result']['id']) +
+        #      ' ' + str(self.is_job_ready_to_run()))
         result = ''
         if self.is_job_ready_to_run():
             result = super(DependentJob, self).submit()
@@ -58,9 +59,11 @@ class DependentJob(FoundationJob.FoundationJob):
 
 class DependencyQueue():
     _queue = Queue.Queue()
+    _poll_interval = 10
 
-    def __init__(self):
+    def __init__(self, interval=10):
         self._queue = Queue.Queue()
+        self._poll_interval = interval
 
     def put_job(self, job):
         self._queue.put(job)
@@ -71,4 +74,24 @@ class DependencyQueue():
     def task_done(self):
         self._queue.task_done()
 
-
+    def run_queue(self, verbose=False):
+        while True:
+            try:
+                job = self.get_job()
+                self.task_done()
+                result = job.submit()
+                if result and verbose:
+                    print 'Dependent job submitted'
+                else:
+                    self.put_job(job)
+                time.sleep(self._poll_interval)
+            except Queue.Empty:
+                if verbose:
+                    print 'Queue is empty'
+                    break
+            except RuntimeError:
+                if verbose:
+                    print '**** Job dependency failed!'
+                continue
+            except KeyboardInterrupt:
+                print "**** Interupted!"
