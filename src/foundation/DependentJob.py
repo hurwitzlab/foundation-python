@@ -31,6 +31,8 @@ class DependentJob(FoundationJob.FoundationJob):
     def update_status(self):
         if self.job_status['result']['status'] == 'DEPENDENCY_WAITING':
             return 'DEPENDENCY_WAITING'
+        elif self.job_status['result']['status'] == 'DEPENDENCY_FAILED':
+            return 'DEPENDENCY_FAILED'
         else:
             return super(DependentJob, self).update_status()
 
@@ -86,7 +88,6 @@ class DependencyQueue():
         while True:
             try:
                 job = self.get_job()
-                self.task_done()
                 result = job.submit()
                 if result:
                     if verbose:
@@ -95,12 +96,17 @@ class DependencyQueue():
                     # There was no result returned becuase the job dependencies
                     # were not fullfilled so we return the job to the queue
                     self.put_job(job)
+                self.task_done()
                 time.sleep(self._poll_interval)
             except Queue.Empty:
                 if verbose:
                     print 'Queue is empty'
                     break
             except RuntimeError:
+                # The job our current job was dependent on has failed
+                # We tell the queue the task is done and we don't return it
+                # to the queue
+                self.task_done()
                 if verbose:
                     print '**** Job dependency failed!'
                 continue
