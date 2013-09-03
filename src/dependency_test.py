@@ -46,6 +46,12 @@ def main():
         #                                          inputs=inputs,
         #                                          job_dependency=job)
         dependent_job_queue.put_job(dependent_job)
+        double_dep_job = DependentJob.DependentJob(api, 'head-stampede-5.97u2',
+                                                   'Head dep', archive='true',
+                                                   inputs=inputs,
+                                                   parameters=parameters,
+                                                   job_dependency=dependent_job)
+        dependent_job_queue.put_job(double_dep_job)
     #work_requests = queuedpool.makeRequests(DependentJob.DependentJob.submit,
     #                                        dependent_jobs,
     #                                        print_result, handle_exception)
