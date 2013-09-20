@@ -70,10 +70,13 @@ class DependentJob(FoundationJob.FoundationJob):
 class DependencyQueue():
     _queue = Queue.Queue()
     _poll_interval = 10
+    failures = 0
+    _failures_before_quit = 3
 
-    def __init__(self, interval=10):
+    def __init__(self, interval=10, failures=3):
         self._queue = Queue.Queue()
         self._poll_interval = interval
+        self._failures_before_quit = failures
 
     def put_job(self, job):
         self._queue.put(job)
@@ -107,6 +110,9 @@ class DependencyQueue():
                 # We tell the queue the task is done and we don't return it
                 # to the queue
                 self.task_done()
+                self.failures += 1
+                if self.failures >= self._failures_before_quit:
+                    break
                 if verbose:
                     print '**** Job dependency failed!'
                 continue
