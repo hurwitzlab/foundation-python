@@ -2,6 +2,7 @@
 import json
 import requests
 import datetime
+import os
 
 
 class FoundationApi:
@@ -25,6 +26,8 @@ class FoundationApi:
     APPS_LIST_NAME = '/apps-v1/apps/name/'
     IO_LIST = '/io-v1/io/list'
     JOB = '/apps-v1/job/'
+    IPLANT_CREDENTIALS = ['/etc/iplant.foundationapi.json',
+                          'iplant.foundationapi.json']
 
     def validate(self, userid, password):
         response = requests.get(self.BASEURL + self.AUTH, auth=(userid,
@@ -45,6 +48,26 @@ class FoundationApi:
         self.authremaining = return_data['result']['remaining_uses']
         self.authcreator = return_data['result']['creator']
         return return_data
+
+    def proxy_authenticate(self, userid):
+        values = {'username': userid}
+        response = requests.post(self.BASEURL + self.AUTH, data=values,
+                                 auth=(self.userid, self.password))
+        return_data = response.json()
+        self.token = return_data['result']['token']
+        self.userid = return_data['result']['username']
+        return return_data
+
+    def super_authenticate(self, userid):
+        for item in self.IPLANT_CREDENTIALS:
+            if os.path.isfile(item):
+                iplant_login = open(item)
+                iplant_data = json.load(iplant_login)
+                break
+        return_data = self.authenticate(iplant_data['user'],
+                                        iplant_data['password'])
+        return_data = self.proxy_authenticate(userid)
+        print return_data 
 
     def reauth(self):
         return_data = self.authenticate(self.userid, self.password)
