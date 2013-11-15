@@ -1,6 +1,9 @@
 #!/usr/bin/env python
-import requests
 import FoundationApi
+import Queue
+import time
+
+FAILED_STATUSES = ['KILLED', 'FAILED', 'STOPPED', 'ARCHIVING_FAILED']
 
 
 class FoundationJob(object):
@@ -63,3 +66,11 @@ class FoundationJob(object):
     def update_status(self):
         self.job_status = self.api.job_status(self.job_status['result']['id'])
         return self.job_status
+
+
+class TooManyFailures(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
