@@ -64,7 +64,9 @@ class FoundationJob(object):
         return self.job_status
 
     def update_status(self):
-        self.job_status = self.api.job_status(self.job_status['result']['id'])
+        job_status = self.api.job_status(self.job_status['result']['id'])
+        if job_status:
+            self.job_status = job_status
         return self.job_status
 
 
