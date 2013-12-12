@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 import FoundationApi
-import Queue
-import time
 
 FAILED_STATUSES = ['KILLED', 'FAILED', 'STOPPED', 'ARCHIVING_FAILED']
 
@@ -64,9 +62,12 @@ class FoundationJob(object):
         return self.job_status
 
     def update_status(self):
-        job_status = self.api.job_status(self.job_status['result']['id'])
-        if job_status:
-            self.job_status = job_status
+        try:
+            job_status = self.api.job_status(self.job_status['result']['id'])
+            if job_status:
+                self.job_status = job_status
+        except TypeError as e:
+            print "TypeError({0}): {1}".format(e.errorno, e.strerror)
         return self.job_status
 
 
