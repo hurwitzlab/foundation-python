@@ -97,7 +97,7 @@ class RegularQueue():
                 d1 = self.fapi.authexpires
                 d2 = datetime.now()
                 if (d1 - d2).seconds < 1200:
-                    self.fapi.auth_renew()
+                    self.fapi.reauth()
                     if self.verbose:
                         print 'Authentication token renewed'
                 job = self.get_monitor_job()
