@@ -67,7 +67,7 @@ class FoundationJob(object):
             if job_status:
                 self.job_status = job_status
         except TypeError as e:
-            print "TypeError({0}): {1}".format(e.errorno, e.strerror)
+            print "TypeError({0}): {1}".format(e.errno, e.strerror)
         return self.job_status
 
 
