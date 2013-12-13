@@ -96,6 +96,10 @@ class FoundationApi:
             return return_data
         except requests.exceptions.RequestException as e:
             print e
+        except TypeError as e:
+            print e
+            print return_data
+            print self
 
     def auth_renew(self, token=''):
         if token == '':
