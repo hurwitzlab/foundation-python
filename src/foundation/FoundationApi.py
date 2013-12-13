@@ -50,6 +50,7 @@ class FoundationApi:
         try:
             response = requests.post(self.BASEURL + self.AUTH, auth=(userid,
                                      password))
+            print response
             return_data = response.json()
             self.token = return_data['result']['token']
             self.userid = return_data['result']['username']
@@ -98,7 +99,6 @@ class FoundationApi:
             print e
         except TypeError as e:
             print e
-            print return_data
             print self
 
     def auth_renew(self, token=''):
