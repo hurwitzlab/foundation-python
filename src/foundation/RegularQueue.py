@@ -98,12 +98,16 @@ class RegularQueue():
                 d1 = self.fapi.authexpires
                 d2 = datetime.now()
                 if (d1 - d2) < timedelta(hours=2):
+                    print 'Attempting to super authenticate'
                     self.fapi.super_authenticate('imicrobe')
                     if self.verbose:
                         print 'Authentication token renewed'
+                print 'get_monitor_job'
                 job = self.get_monitor_job()
+                print 'update_status()'
                 job.update_status()
                 result = job.job_status['result']
+                print result
                 if result is None:
                     self.monitor_job(job)
                 elif result['status'] == 'ARCHIVING_FINISHED':
