@@ -97,7 +97,7 @@ class RegularQueue():
             try:
                 d1 = self.fapi.authexpires
                 d2 = datetime.now()
-                if (d1 - d2) < timedelta(hours=1):
+                if (d1 - d2) < timedelta(hours=2):
                     self.fapi.super_authenticate('imicrobe')
                     if self.verbose:
                         print 'Authentication token renewed'
