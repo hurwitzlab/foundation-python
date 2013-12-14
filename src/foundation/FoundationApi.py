@@ -46,10 +46,11 @@ class FoundationApi:
         except requests.exceptions.RequestException as e:
             print e
 
-    def authenticate(self, userid, password):
+    def authenticate(self, userid, password, lifetime=172800):
         try:
+            payload = {'lifetime': lifetime}
             response = requests.post(self.BASEURL + self.AUTH, auth=(userid,
-                                     password))
+                                     password), data=payload)
             print response
             return_data = response.json()
             self.token = return_data['result']['token']
@@ -100,6 +101,7 @@ class FoundationApi:
         except TypeError as e:
             print e
             print self
+            print self.list_jobs('RUNNING')
 
     def auth_renew(self, token=''):
         if token == '':

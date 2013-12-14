@@ -2,6 +2,7 @@
 import Queue
 import time
 from datetime import datetime
+from datetime import timedelta
 
 FAILED_STATUSES = ['KILLED', 'FAILED', 'STOPPED', 'ARCHIVING_FAILED']
 
@@ -96,8 +97,8 @@ class RegularQueue():
             try:
                 d1 = self.fapi.authexpires
                 d2 = datetime.now()
-                if (d1 - d2).seconds < 1200:
-                    self.fapi.reauth()
+                if (d1 - d2) < timedelta(hours=1):
+                    self.fapi.super_authenticate('imicrobe')
                     if self.verbose:
                         print 'Authentication token renewed'
                 job = self.get_monitor_job()
