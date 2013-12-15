@@ -31,6 +31,8 @@ class FoundationApi:
     JOB = '/apps-v1/job/'
     IPLANT_CREDENTIALS = ['/etc/iplant.foundationapi.json',
                           'iplant.foundationapi.json']
+    IMICROBE_CREDENTIALS = ['/etc/imicrobe.foundationapi.json',
+                            'imicrobe.foundationapi.json']
 
     def __init__(self):
         s = requests.Session()
@@ -69,6 +71,16 @@ class FoundationApi:
         except requests.exceptions.RequestException as e:
             print e
 
+    def authenticate_imicrobe(self):
+        for item in self.IMICROBE_CREDENTIALS:
+            if os.path.isfile(item):
+                imicrobe_login = open(item)
+                imicrobe_data = json.load(imicrobe_login)
+                break
+        return_data = self.authenticate(imicrobe_data['user'],
+                                        imicrobe_data['password'])
+        print return_data
+
     def proxy_authenticate(self, userid):
         values = {'username': userid}
         try:
@@ -81,12 +93,16 @@ class FoundationApi:
         except requests.exceptions.RequestException as e:
             print e
 
-    def super_authenticate(self, userid):
+    def _get_iplant_credentials(self):
         for item in self.IPLANT_CREDENTIALS:
             if os.path.isfile(item):
                 iplant_login = open(item)
                 iplant_data = json.load(iplant_login)
                 break
+        return iplant_data
+
+    def super_authenticate(self, userid):
+        iplant_data = self._get_iplant_credentials()
         return_data = self.authenticate(iplant_data['user'],
                                         iplant_data['password'])
         return_data = self.proxy_authenticate(userid)
@@ -217,6 +233,24 @@ class FoundationApi:
             results = self.session.get(self.BASEURL + self.JOB + str(id),
                                        auth=(self.userid, self.token))
             return results.json()
+        except requests.exceptions.RequestException as e:
+            print e
+
+    def job_output_list(self, id, path):
+        try:
+            results = self.session.get(self.BASEURL + self.JOB + str(id) +
+                                       '/output/list/' + path,
+                                       auth=(self.userid, self.token))
+            return results.json()
+        except requests.exceptions.RequestException as e:
+            print e
+
+    def job_output(self, id, path):
+        try:
+            results = self.session.get(self.BASEURL + self.JOB + str(id) +
+                                       '/output/' + path,
+                                       auth=(self.userid, self.token))
+            return results.text
         except requests.exceptions.RequestException as e:
             print e
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import Queue
 import time
-from datetime import datetime
-from datetime import timedelta
+#from datetime import datetime
+#from datetime import timedelta
 
 FAILED_STATUSES = ['KILLED', 'FAILED', 'STOPPED', 'ARCHIVING_FAILED']
 
@@ -95,11 +95,11 @@ class RegularQueue():
                 print "**** Interupted!"
         while True:
             try:
-                d1 = self.fapi.authexpires
-                d2 = datetime.now()
+                #d1 = self.fapi.authexpires
+                #d2 = datetime.now()
                 #if (d1 - d2) < timedelta(hours=2):
-                print 'Attempting to super authenticate'
-                self.fapi.super_authenticate('imicrobe')
+                print 'Renew token'
+                self.fapi.auth_renew()
                 if self.verbose:
                     print 'Authentication token renewed'
                 print 'get_monitor_job'
@@ -113,6 +113,10 @@ class RegularQueue():
                 elif result['status'] == 'ARCHIVING_FINISHED':
                     self.finished_jobs.append(job)
                 elif result['status'] in FAILED_STATUSES:
+                    jobid = str(result['id'])
+                    status = result['status']
+                    if self.verbose:
+                        print 'Job ' + jobid + ' has status' + status
                     self.increment_failures(job)
                 else:
                     jobid = str(result['id'])
